@@ -31,3 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Secrets ###
+src/main/resources/application.properties
+application.properties
+.env
+.DS_Store
+
+.gemini-cli/
+.mysql-data/
+.node_modules/
+.vite/
+.uploads/
+.application.properties

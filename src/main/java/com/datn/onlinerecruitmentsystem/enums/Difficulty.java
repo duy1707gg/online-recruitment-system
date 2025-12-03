@@ -1,4 +1,5 @@
-package com.datn.onlinerecruitmentsystem.common;
+package com.datn.onlinerecruitmentsystem.enums;
 
 public enum Difficulty {
+    EASY, MEDIUM, HARD
 }

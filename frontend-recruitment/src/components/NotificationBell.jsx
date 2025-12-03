@@ -3,7 +3,7 @@ import { Badge, Popover, List, Avatar, Typography, Empty, message } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
-import axiosClient from '../api/axiosClient.js'; // Đảm bảo đường dẫn đúng tới file cấu hình axios của bạn
+import axiosClient from '../api/axiosClient.js';
 import dayjs from 'dayjs';
 
 const { Text } = Typography;
@@ -14,21 +14,18 @@ const NotificationBell = () => {
     const [userId, setUserId] = useState(null);
     const [open, setOpen] = useState(false);
 
-    // Ref giữ kết nối socket để tránh re-render
     const stompClient = useRef(null);
+    const isConnected = useRef(false);
 
     useEffect(() => {
         const initData = async () => {
             try {
-                // 1. Lấy thông tin user hiện tại
                 const userRes = await axiosClient.get('/users/me');
                 const uid = userRes.data.id;
                 setUserId(uid);
 
-                // 2. Lấy lịch sử thông báo cũ từ Database
                 fetchHistory(uid);
 
-                // 3. Kết nối WebSocket
                 connectWebSocket(uid);
             } catch (error) {
                 console.error("Lỗi khởi tạo NotificationBell:", error);
@@ -37,44 +34,51 @@ const NotificationBell = () => {
 
         initData();
 
-        // Cleanup khi component unmount
         return () => {
             if (stompClient.current) {
                 stompClient.current.disconnect();
             }
+            isConnected.current = false;
         };
     }, []);
 
-    // Hàm lấy lịch sử thông báo
+
     const fetchHistory = async (uid) => {
         try {
-            // Giả sử API backend là GET /notifications/{userId}
             const res = await axiosClient.get(`/notifications/${uid}`);
             if (res.data) {
                 setNotifications(res.data);
-                // Đếm số thông báo có read = false
                 const unread = res.data.filter(n => !n.read).length;
                 setUnreadCount(unread);
             }
         } catch (error) {
-            console.warn("Không thể tải lịch sử thông báo (Có thể API chưa sẵn sàng).");
+            console.warn("Không thể tải lịch sử thông báo.", error);
         }
     };
 
-    // Hàm kết nối WebSocket
     const connectWebSocket = (uid) => {
-        // URL này phải khớp với config bên Spring Boot (registry.addEndpoint("/ws"))
-        const socket = new SockJS('http://localhost:8081/ws');
+        if (isConnected.current) {
+            return;
+        }
+        isConnected.current = true; // Mark as connecting immediately
+
+        const backendHost = window.location.hostname;
+
+        let socketUrl = `https://${backendHost}/ws`;
+        if (backendHost === 'localhost') {
+            socketUrl = `http://${backendHost}:8081/ws`;
+        }
+
+        const socket = new SockJS(socketUrl);
         const client = Stomp.over(socket);
 
-        // Tắt log debug của STOMP để console gọn gàng hơn
-        client.debug = () => {};
+        client.debug = () => { };
 
         client.connect(
             {},
             () => {
                 stompClient.current = client;
-                // Subscribe kênh riêng của user
+                // isConnected.current is already true
                 client.subscribe(`/topic/notifications/${uid}`, (msg) => {
                     const newNotif = JSON.parse(msg.body);
                     handleNewNotification(newNotif);
@@ -82,19 +86,15 @@ const NotificationBell = () => {
             },
             (error) => {
                 console.error("Lỗi kết nối WebSocket:", error);
+                isConnected.current = false; // Reset on error
             }
         );
     };
 
-    // Xử lý khi có thông báo mới đến
     const handleNewNotification = (newNotif) => {
-        // 1. Thêm vào đầu danh sách
         setNotifications(prev => [newNotif, ...prev]);
-
-        // 2. Tăng số lượng chưa đọc
         setUnreadCount(prev => prev + 1);
 
-        // 3. Hiển thị Toast thông báo góc màn hình
         message.info({
             content: `🔔 ${newNotif.content}`,
             duration: 4,
@@ -102,18 +102,50 @@ const NotificationBell = () => {
         });
     };
 
-    // Xử lý khi bấm mở Popover (Đánh dấu đã đọc)
+    const markSingleNotificationAsRead = async (notificationId, isRead) => {
+        if (!isRead) {
+            try {
+                await axiosClient.put(`/notifications/${notificationId}/read`);
+
+                setNotifications(prev => prev.map(n =>
+                    n.id === notificationId ? { ...n, read: true } : n
+                ));
+
+                setUnreadCount(prev => prev > 0 ? prev - 1 : 0);
+            } catch (error) {
+                console.error("Lỗi đánh dấu đã đọc riêng lẻ", error);
+            }
+        }
+    };
+
+    const handleDeleteAll = async () => {
+        if (!userId) {
+            message.error("Không tìm thấy ID người dùng.");
+            return;
+        }
+
+        try {
+            await axiosClient.delete(`/notifications/delete-all/${userId}`);
+
+            setNotifications([]);
+            setUnreadCount(0);
+            message.success("Đã xóa tất cả thông báo.");
+            setOpen(false);
+        } catch (error) {
+            message.error("Lỗi khi xóa tất cả thông báo.");
+            console.error("Lỗi xóa tất cả:", error);
+        }
+    };
+
+
     const handleOpenChange = async (visible) => {
         setOpen(visible);
         if (visible && unreadCount > 0) {
             try {
-                // Nếu backend có API "Đánh dấu tất cả đã đọc", gọi ở đây
-                // await axiosClient.put(`/notifications/read-all/${userId}`);
+                await axiosClient.put(`/notifications/read-all/${userId}`);
 
-                // Cập nhật UI: Reset số lượng chưa đọc về 0
                 setUnreadCount(0);
 
-                // Cập nhật trạng thái visual của danh sách
                 setNotifications(prev => prev.map(n => ({ ...n, read: true })));
             } catch (error) {
                 console.error("Lỗi đánh dấu đã đọc", error);
@@ -121,7 +153,6 @@ const NotificationBell = () => {
         }
     };
 
-    // Nội dung danh sách thông báo bên trong Popover
     const popoverContent = (
         <div style={{ width: 350, maxHeight: 400, overflowY: 'auto' }}>
             <div style={{
@@ -133,8 +164,15 @@ const NotificationBell = () => {
                 backgroundColor: '#fafafa'
             }}>
                 <Text strong>Thông báo</Text>
+
                 {notifications.length > 0 && (
-                    <Text type="secondary" style={{ fontSize: 12 }}>{notifications.length} tin</Text>
+                    <Text
+                        type="secondary"
+                        style={{ fontSize: 12, cursor: 'pointer', color: '#ff4d4f' }}
+                        onClick={handleDeleteAll}
+                    >
+                        Xóa tất cả
+                    </Text>
                 )}
             </div>
 
@@ -149,13 +187,12 @@ const NotificationBell = () => {
                         className="notification-item"
                         style={{
                             padding: '12px 16px',
-                            // Màu nền xanh nhạt nếu chưa đọc, trắng nếu đã đọc
                             backgroundColor: item.read ? '#fff' : '#e6f7ff',
                             borderBottom: '1px solid #f0f0f0',
                             cursor: 'pointer',
                             transition: 'background-color 0.3s'
                         }}
-                        // Hover effect có thể thêm bằng CSS global
+                        onClick={() => markSingleNotificationAsRead(item.id, item.read)}
                     >
                         <List.Item.Meta
                             avatar={
@@ -178,7 +215,6 @@ const NotificationBell = () => {
                                 </div>
                             }
                         />
-                        {/* Dấu chấm xanh nếu chưa đọc */}
                         {!item.read && <Badge status="processing" />}
                     </List.Item>
                 )}
@@ -203,7 +239,7 @@ const NotificationBell = () => {
                         icon={<BellOutlined />}
                         style={{
                             backgroundColor: 'transparent',
-                            color: '#000', // Màu icon chuông
+                            color: '#f8f6f6',
                             border: '1px solid #d9d9d9',
                             cursor: 'pointer'
                         }}

@@ -1,9 +1,12 @@
 services:
-  postgres:
-    image: 'postgres:latest'
+  mysql:
+    image: 'mysql:8.0'
+    container_name: my_graduation_db
+    restart: always
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      - 'MYSQL_DATABASE=recruitment_db'
+      - 'MYSQL_ROOT_PASSWORD=123456'
     ports:
-      - '5432'
+      - '3307:3306' 
+    volumes:
+      - ./mysql-data:/var/lib/mysql 
