@@ -9,7 +9,7 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 const { Title, Text } = Typography;
 
 
-const GOOGLE_CLIENT_ID = '1085093700598-5a3dunvav1jdrujj1ab1stao322775cv.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 
 const LoginPage = () => {
