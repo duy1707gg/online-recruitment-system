@@ -28,8 +28,8 @@ const RegisterPage = () => {
     };
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5' }}>
-            <Card style={{ width: 450, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5', padding: '20px' }}>
+            <Card style={{ width: '100%', maxWidth: 450, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
                 <div style={{ textAlign: 'center', marginBottom: 20 }}>
                     <Title level={2} style={{ color: '#1890ff' }}>CMC Assessment</Title>
                     <Text type="secondary">Tạo tài khoản mới</Text>

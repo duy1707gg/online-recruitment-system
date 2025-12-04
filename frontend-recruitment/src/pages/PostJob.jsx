@@ -32,7 +32,7 @@ const PostJob = () => {
     };
 
     return (
-        <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
+        <div style={{ padding: 24, width: '100%', maxWidth: 800, margin: '0 auto' }}>
             <Card title="Đăng tin tuyển dụng mới">
                 <Form layout="vertical" onFinish={onFinish}>
                     <Form.Item label="Tiêu đề công việc" name="title" rules={[{ required: true }]}>

@@ -56,6 +56,10 @@ public class InterviewService {
                 interview.setInterviewer(interviewer);
                 interview.setScheduledTime(scheduledTime);
 
+                if (schedulerEmail != null) {
+                        userRepository.findByEmail(schedulerEmail).ifPresent(interview::setScheduler);
+                }
+
                 interview.setRoomId(UUID.randomUUID().toString());
 
                 interview.setMeetingLink(frontendUrl + "/room/interview-" + interview.getRoomId());

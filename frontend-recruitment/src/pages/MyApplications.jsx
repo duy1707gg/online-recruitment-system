@@ -182,6 +182,7 @@ const MyApplications = () => {
                     columns={columns}
                     rowKey="id"
                     pagination={{ pageSize: 5 }}
+                    scroll={{ x: true }}
                 />
             </Card>
         </div>

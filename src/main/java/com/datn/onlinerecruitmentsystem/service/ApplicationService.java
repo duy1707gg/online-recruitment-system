@@ -27,6 +27,7 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     public Application applyJob(String email, Long jobId, MultipartFile cvFile) throws IOException {
         User candidate = userRepository.findByEmail(email)
@@ -118,6 +119,38 @@ public class ApplicationService {
         try {
             ApplicationStatus newStatus = ApplicationStatus.valueOf(statusStr);
             app.setStatus(newStatus);
+
+            // Send email based on status
+            String candidateEmail = app.getCandidate().getEmail();
+            String jobTitle = app.getJob().getTitle();
+
+            if (newStatus == ApplicationStatus.OFFERED) {
+                String schedulerEmail = "tuyendung@cmc.com.vn"; // Default
+                if (app.getInterview() != null) {
+                    if (app.getInterview().getScheduler() != null) {
+                        schedulerEmail = app.getInterview().getScheduler().getEmail();
+                    } else if (app.getInterview().getInterviewer() != null) {
+                        schedulerEmail = app.getInterview().getInterviewer().getEmail();
+                    }
+                }
+
+                String subject = "Kết quả phỏng vấn - " + jobTitle;
+                String content = "Chúc mừng bạn! Bạn đã vượt qua vòng phỏng vấn cho vị trí " + jobTitle + ".\n\n" +
+                        "Chúng tôi trân trọng mời bạn đến văn phòng để trao đổi chi tiết về Offer.\n" +
+                        "Địa chỉ: Tầng 10, Tòa nhà CMC, 11 Duy Tân, Cầu Giấy, Hà Nội\n" +
+                        "Phòng: 101\n\n" +
+                        "Vui lòng phản hồi email này (" + schedulerEmail + ") để xác nhận lịch hẹn.";
+                emailService.sendSimpleMessage(candidateEmail, subject, content);
+            } else if (newStatus == ApplicationStatus.REJECTED) {
+                String subject = "Thông báo kết quả phỏng vấn - " + jobTitle;
+                String content = "Cảm ơn bạn đã quan tâm đến vị trí " + jobTitle + " tại công ty chúng tôi.\n\n" +
+                        "Sau khi xem xét kỹ lưỡng, chúng tôi rất tiếc phải thông báo rằng bạn chưa phù hợp với vị trí này ở thời điểm hiện tại.\n"
+                        +
+                        "Chúng tôi sẽ lưu hồ sơ của bạn và liên hệ lại nếu có vị trí phù hợp trong tương lai.\n\n" +
+                        "Chúc bạn sớm tìm được công việc ưng ý!";
+                emailService.sendSimpleMessage(candidateEmail, subject, content);
+            }
+
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid status: " + statusStr);
         }

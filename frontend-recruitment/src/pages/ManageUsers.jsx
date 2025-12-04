@@ -131,8 +131,8 @@ const ManageUsers = () => {
 
     return (
         <div style={{ padding: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <h2>Quản lý người dùng hệ thống</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: '10px' }}>
+                <h2 style={{ margin: 0 }}>Quản lý người dùng hệ thống</h2>
                 <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalCreateOpen(true)}>
                     Tạo người dùng
                 </Button>
@@ -144,6 +144,7 @@ const ManageUsers = () => {
                 rowKey="id"
                 loading={loading}
                 pagination={{ pageSize: 8 }}
+                scroll={{ x: true }}
             />
 
             <Modal

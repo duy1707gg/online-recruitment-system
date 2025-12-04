@@ -202,6 +202,25 @@ const ManageJobs = () => {
             }
         },
         {
+            title: 'Người lên lịch',
+            key: 'scheduler',
+            render: (_, record) => {
+                if (record.interview) {
+                    const name = record.interview.scheduler ? record.interview.scheduler.fullName : (record.interview.interviewer ? record.interview.interviewer.fullName : '---');
+                    return (
+                        <div>
+                            <div>{name}</div>
+                            <div style={{ fontSize: '12px', color: '#888' }}>
+                                <Tag color="blue" style={{ marginRight: 5 }}>RECRUITER</Tag>
+                                {dayjs(record.interview.scheduledTime).format('HH:mm DD/MM')}
+                            </div>
+                        </div>
+                    );
+                }
+                return <span style={{ color: '#ccc' }}>---</span>;
+            }
+        },
+        {
             title: 'Hành động',
             key: 'action',
             render: (_, record) => {
@@ -260,7 +279,7 @@ const ManageJobs = () => {
     return (
         <div style={{ padding: 20 }} >
             <h2>Quản lý tin tuyển dụng</h2>
-            <Table dataSource={jobs} columns={jobColumns} rowKey="id" />
+            <Table dataSource={jobs} columns={jobColumns} rowKey="id" scroll={{ x: true }} />
 
             <Modal
                 title="Danh sách ứng tuyển"
@@ -269,7 +288,7 @@ const ManageJobs = () => {
                 footer={null}
                 width={1000}
             >
-                <Table dataSource={applications} columns={appColumns} rowKey="id" pagination={{ pageSize: 5 }} />
+                <Table dataSource={applications} columns={appColumns} rowKey="id" pagination={{ pageSize: 5 }} scroll={{ x: true }} />
             </Modal>
 
             <Modal

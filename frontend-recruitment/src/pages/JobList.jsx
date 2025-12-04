@@ -91,7 +91,7 @@ const JobList = () => {
         <div style={{ padding: '20px' }}>
             <h2>Việc làm đang tuyển</h2>
             <List
-                grid={{ gutter: 16, column: 3 }}
+                grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 3, xxl: 3 }}
                 dataSource={jobs}
                 renderItem={(item) => (
                     <List.Item>

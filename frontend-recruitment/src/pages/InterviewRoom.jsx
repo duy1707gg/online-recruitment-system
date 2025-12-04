@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Button, Row, Col, Typography, Badge, Tabs, Select, Spin, message } from 'antd';
+import { Card, Button, Row, Col, Typography, Badge, Tabs, Select, Spin, message, Grid } from 'antd';
 import {
     PhoneOutlined, PlayCircleOutlined, LogoutOutlined,
     AudioOutlined, AudioMutedOutlined,
@@ -13,6 +13,7 @@ import axiosClient from '../api/axiosClient';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
+const { useBreakpoint } = Grid;
 
 // Default config as fallback
 const defaultPeerConnectionConfig = {
@@ -25,6 +26,7 @@ const defaultPeerConnectionConfig = {
 const InterviewRoom = () => {
     const { roomId } = useParams();
     const navigate = useNavigate();
+    const screens = useBreakpoint();
 
     const [connected, setConnected] = useState(false);
     const [logs, setLogs] = useState([]);
@@ -330,95 +332,106 @@ const InterviewRoom = () => {
     const addLog = (msg) => setLogs(prev => [...prev, msg]);
 
     return (
-        <div style={{ padding: 10, height: '90vh' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, alignItems: 'center', background: '#fff', padding: '10px', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+        <div style={{ padding: 10, height: screens.md ? '90vh' : 'auto', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <div style={{
+                display: 'flex',
+                flexDirection: screens.md ? 'row' : 'column',
+                justifyContent: 'space-between',
+                marginBottom: 10,
+                alignItems: 'center',
+                background: '#fff',
+                padding: '10px',
+                borderRadius: 8,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                gap: 10
+            }}>
                 <Title level={4} style={{ margin: 0 }}>
                     Phòng: {roomId} <Badge status={connected ? "success" : "error"} text={connected ? "Online" : "Mất kết nối"} />
                 </Title>
-                <div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
                     <Button
                         icon={isMicOn ? <AudioOutlined /> : <AudioMutedOutlined />}
                         onClick={toggleMic}
-                        style={{ marginRight: 10 }}
                         danger={!isMicOn}
                     >
-                        {isMicOn ? 'Tắt Mic' : 'Bật Mic'}
+                        {screens.md ? (isMicOn ? 'Tắt Mic' : 'Bật Mic') : ''}
                     </Button>
 
                     <Button
                         icon={isCamOn ? <VideoCameraOutlined /> : <StopOutlined />}
                         onClick={toggleCam}
-                        style={{ marginRight: 10 }}
                         danger={!isCamOn}
                     >
-                        {isCamOn ? 'Tắt Cam' : 'Bật Cam'}
+                        {screens.md ? (isCamOn ? 'Tắt Cam' : 'Bật Cam') : ''}
                     </Button>
 
-                    <Button type="primary" icon={<PhoneOutlined />} onClick={startCall} style={{ marginRight: 10 }}>
-                        Gọi Video
+                    <Button type="primary" icon={<PhoneOutlined />} onClick={startCall}>
+                        {screens.md ? 'Gọi Video' : ''}
                     </Button>
 
                     <Button danger icon={<LogoutOutlined />} onClick={leaveRoom}>
-                        Thoát & Tắt Cam
+                        {screens.md ? 'Thoát' : ''}
                     </Button>
                 </div>
             </div>
 
-            <Row gutter={16} style={{ height: 'calc(100% - 60px)' }}>
-                <Col span={7} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <Card size="small" title="Ứng viên phỏng vấn" bodyStyle={{ padding: 0 }} style={{ background: '#222', flex: 1 }}>
-                        <video ref={partnerVideo} autoPlay playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </Card>
+            <Row gutter={[16, 16]} style={{ flex: 1 }}>
+                <Col xs={24} md={7} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', flexDirection: screens.md ? 'column' : 'row', gap: 10, height: screens.md ? 'auto' : '200px' }}>
+                        <Card size="small" title="Ứng viên" bodyStyle={{ padding: 0 }} style={{ background: '#222', flex: 1 }}>
+                            <video ref={partnerVideo} autoPlay playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </Card>
 
-                    <Card size="small" title="Bạn" bodyStyle={{ padding: 0 }} style={{ background: '#000', flex: 1 }}>
-                        <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
-                            <video
-                                ref={userVideo}
-                                autoPlay
-                                muted
-                                playsInline
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover',
-                                    transform: 'scaleX(-1)',
-                                    display: isCamOn ? 'block' : 'none'
-                                }}
-                            />
+                        <Card size="small" title="Bạn" bodyStyle={{ padding: 0 }} style={{ background: '#000', flex: 1 }}>
+                            <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+                                <video
+                                    ref={userVideo}
+                                    autoPlay
+                                    muted
+                                    playsInline
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover',
+                                        transform: 'scaleX(-1)',
+                                        display: isCamOn ? 'block' : 'none'
+                                    }}
+                                />
 
-                            {!isCamOn && (
-                                <div style={{
-                                    width: '100%', height: '100%',
-                                    display: 'flex', flexDirection: 'column',
-                                    justifyContent: 'center', alignItems: 'center',
-                                    background: '#1f1f1f', color: '#888'
-                                }}>
-                                    <StopOutlined style={{ fontSize: 30, marginBottom: 8 }} />
-                                    <span>Camera Off</span>
-                                </div>
-                            )}
+                                {!isCamOn && (
+                                    <div style={{
+                                        width: '100%', height: '100%',
+                                        display: 'flex', flexDirection: 'column',
+                                        justifyContent: 'center', alignItems: 'center',
+                                        background: '#1f1f1f', color: '#888'
+                                    }}>
+                                        <StopOutlined style={{ fontSize: 30, marginBottom: 8 }} />
+                                        <span>Camera Off</span>
+                                    </div>
+                                )}
 
-                            {!isMicOn && (
-                                <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(255,0,0,0.7)', color: 'white', padding: '2px 8px', borderRadius: 4, fontSize: 12 }}>
-                                    <AudioMutedOutlined /> Mic Off
-                                </div>
-                            )}
-                        </div>
-                    </Card>
+                                {!isMicOn && (
+                                    <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(255,0,0,0.7)', color: 'white', padding: '2px 8px', borderRadius: 4, fontSize: 12 }}>
+                                        <AudioMutedOutlined /> Mic Off
+                                    </div>
+                                )}
+                            </div>
+                        </Card>
+                    </div>
 
-                    <div style={{ height: 100, background: '#f0f0f0', overflow: 'auto', padding: 5, fontSize: 12, borderRadius: 4 }}>
+                    <div style={{ height: 100, background: '#f0f0f0', overflow: 'auto', padding: 5, fontSize: 12, borderRadius: 4, display: screens.md ? 'block' : 'none' }}>
                         {logs.map((l, i) => <div key={i}>- {l}</div>)}
                     </div>
                 </Col>
 
-                <Col span={17}>
+                <Col xs={24} md={17} style={{ height: screens.md ? '100%' : 'auto', minHeight: '500px' }}>
                     <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }} bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 0 }}>
                         {problem ? (
                             <Tabs defaultActiveKey="2" style={{ flex: 1 }} items={[
                                 {
                                     key: '1', label: 'Đề bài',
                                     children: (
-                                        <div style={{ padding: 20, overflowY: 'auto', height: '55vh' }}>
+                                        <div style={{ padding: 20, overflowY: 'auto', height: screens.md ? '55vh' : 'auto' }}>
                                             <Title level={4}>{problem.title}</Title>
                                             <div dangerouslySetInnerHTML={{ __html: problem.description }} />
                                             <div style={{ marginTop: 20, padding: 10, background: '#f9f9f9', borderRadius: 4 }}>
@@ -430,8 +443,8 @@ const InterviewRoom = () => {
                                 {
                                     key: '2', label: 'Code Editor',
                                     children: (
-                                        <div style={{ height: '55vh', display: 'flex', flexDirection: 'column' }}>
-                                            <div style={{ padding: 10, borderBottom: '1px solid #eee', display: 'flex', gap: 10 }}>
+                                        <div style={{ height: screens.md ? '55vh' : '500px', display: 'flex', flexDirection: 'column' }}>
+                                            <div style={{ padding: 10, borderBottom: '1px solid #eee', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                                 <Select
                                                     style={{ width: 250 }}
                                                     placeholder="Chọn bài tập"
@@ -450,7 +463,7 @@ const InterviewRoom = () => {
                                                 </Select>
 
                                                 <Button type="primary" icon={<PlayCircleOutlined />} loading={submitting} onClick={handleSubmit}>
-                                                    Chạy thử (Run)
+                                                    Run
                                                 </Button>
                                             </div>
                                             <Editor

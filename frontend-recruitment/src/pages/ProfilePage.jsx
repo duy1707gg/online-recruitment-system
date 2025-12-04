@@ -119,7 +119,7 @@ const ProfilePage = () => {
                     disabled={loading}
                 >
                     <Row gutter={16}>
-                        <Col span={18}>
+                        <Col xs={24} md={18}>
                             <Form.Item
                                 label="Họ và tên"
                                 name="fullName"
@@ -128,7 +128,7 @@ const ProfilePage = () => {
                                 <Input prefix={<UserOutlined />} placeholder="Họ tên" />
                             </Form.Item>
                         </Col>
-                        <Col span={6}>
+                        <Col xs={24} md={6}>
                             <Form.Item
                                 label="Tuổi"
                                 name="age"
@@ -142,12 +142,12 @@ const ProfilePage = () => {
                             </Form.Item>
                         </Col>
 
-                        <Col span={12}>
+                        <Col xs={24} md={12}>
                             <Form.Item label="Email" name="email">
                                 <Input prefix={<MailOutlined />} disabled />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} md={12}>
                             <Form.Item
                                 label="Số điện thoại"
                                 name="phoneNumber"
@@ -240,10 +240,10 @@ const ProfilePage = () => {
             <Card
                 style={{ width: '100%', maxWidth: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderRadius: '8px' }}
             >
-                <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 30, paddingBottom: 20, borderBottom: '1px solid #f0f0f0' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 30, paddingBottom: 20, borderBottom: '1px solid #f0f0f0', textAlign: 'center' }}>
 
                     {/* --- KHU VỰC AVATAR --- */}
-                    <div style={{ marginRight: 24, textAlign: 'center' }}>
+                    <div style={{ marginBottom: 16 }}>
                         <Upload
                             showUploadList={false}
                             customRequest={handleUploadAvatar}
@@ -276,12 +276,12 @@ const ProfilePage = () => {
                         <div style={{ marginTop: 8, fontSize: '12px', color: '#888' }}>Nhấn để đổi ảnh</div>
                     </div>
 
-                    <div style={{ flex: 1 }}>
+                    <div style={{ width: '100%' }}>
                         <Title level={3} style={{ marginBottom: 8, marginTop: 0 }}>
                             {userData?.fullName || 'Người dùng'}
                         </Title>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'center' }}>
                             <Text type="secondary" style={{ fontSize: '15px' }}>
                                 <MailOutlined style={{ marginRight: 8 }} />
                                 {userData?.email || 'Đang tải...'}

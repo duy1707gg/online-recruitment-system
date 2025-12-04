@@ -20,6 +20,10 @@ public class Interview {
     @JoinColumn(name = "interviewer_id")
     private User interviewer;
 
+    @ManyToOne
+    @JoinColumn(name = "scheduler_id")
+    private User scheduler;
+
     private LocalDateTime scheduledTime;
     private String roomId;
     private String meetingLink;

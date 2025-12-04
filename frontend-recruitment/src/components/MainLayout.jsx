@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Menu, Avatar, Dropdown, message, Spin, FloatButton, Modal } from 'antd';
-import { UserOutlined, CodeOutlined, LogoutOutlined, DollarOutlined, FormOutlined, RobotOutlined, BarChartOutlined } from '@ant-design/icons';
+import { Layout, Menu, Avatar, Dropdown, message, Spin, FloatButton, Modal, Drawer, Button, Grid } from 'antd';
+import { UserOutlined, CodeOutlined, LogoutOutlined, DollarOutlined, FormOutlined, RobotOutlined, BarChartOutlined, MenuOutlined } from '@ant-design/icons';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 
@@ -8,13 +8,16 @@ import ChatbotWidget from '../pages/ChatbotWidget';
 import NotificationBell from "./NotificationBell.jsx";
 
 const { Header, Content, Footer } = Layout;
+const { useBreakpoint } = Grid;
 
 const MainLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const screens = useBreakpoint();
 
     const [user, setUser] = useState(null);
     const [isChatModalVisible, setIsChatModalVisible] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -86,20 +89,30 @@ const MainLayout = () => {
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px' }}>
-                <div style={{ color: 'white', fontSize: 20, fontWeight: 'bold', marginRight: 30 }}>
-                    CMC Code Assessment
+            <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: screens.md ? '0 20px' : '0 10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ color: 'white', fontSize: screens.md ? 20 : 16, fontWeight: 'bold', marginRight: screens.md ? 30 : 10 }}>
+                        {screens.md ? 'CMC Code Assessment' : 'CMC CA'}
+                    </div>
                 </div>
 
-                <Menu
-                    theme="dark"
-                    mode="horizontal"
-                    selectedKeys={getActiveKey()}
-                    items={navItems}
-                    style={{ flex: 1 }}
-                />
+                {screens.md ? (
+                    <Menu
+                        theme="dark"
+                        mode="horizontal"
+                        selectedKeys={getActiveKey()}
+                        items={navItems}
+                        style={{ flex: 1, minWidth: 0 }}
+                    />
+                ) : (
+                    <Button
+                        type="text"
+                        icon={<MenuOutlined style={{ color: 'white', fontSize: 20 }} />}
+                        onClick={() => setMobileMenuOpen(true)}
+                    />
+                )}
 
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginLeft: screens.md ? 0 : 'auto' }}>
                     {user && <NotificationBell />}
 
                     {user ? (
@@ -108,20 +121,36 @@ const MainLayout = () => {
                                 <Avatar
                                     icon={<UserOutlined />}
                                     src={user.avatarUrl}
-                                    style={{ marginRight: 8, backgroundColor: '#1890ff' }}
+                                    style={{ marginRight: screens.md ? 8 : 0, backgroundColor: '#1890ff' }}
                                 >
                                     {!user.avatarUrl && user.fullName?.charAt(0)?.toUpperCase()}
                                 </Avatar>
-                                <span>{user.fullName}</span>
+                                {screens.md && <span>{user.fullName}</span>}
                             </div>
                         </Dropdown>
                     ) : <Spin />}
                 </div>
 
+                <Drawer
+                    title="Menu"
+                    placement="left"
+                    onClose={() => setMobileMenuOpen(false)}
+                    open={mobileMenuOpen}
+                    width={250}
+                >
+                    <Menu
+                        mode="vertical"
+                        selectedKeys={getActiveKey()}
+                        items={navItems}
+                        onClick={() => setMobileMenuOpen(false)}
+                        style={{ borderRight: 0 }}
+                    />
+                </Drawer>
+
             </Header>
 
-            <Content style={{ padding: '20px 50px' }}>
-                <div style={{ background: '#fff', padding: 24, minHeight: 280, borderRadius: 8, marginTop: 20 }}>
+            <Content style={{ padding: screens.md ? '20px 50px' : '10px 10px' }}>
+                <div style={{ background: '#fff', padding: screens.md ? 24 : 12, minHeight: 280, borderRadius: 8, marginTop: 20 }}>
                     <Outlet />
                 </div>
             </Content>

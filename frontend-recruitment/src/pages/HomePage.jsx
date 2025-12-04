@@ -24,7 +24,7 @@ const HomePage = () => {
                         <Space direction="vertical" size="large">
                             <div style={styles.badge}>🚀 Nền tảng tuyển dụng IT số 1</div>
                             <Title level={1} style={{ color: '#fff', fontSize: '3.5rem', margin: 0, lineHeight: 1.2 }}>
-                                Tuyển dụng lập trình viên <br/>
+                                Tuyển dụng lập trình viên <br />
                                 <span style={{ color: '#40a9ff' }}>Chính xác & Hiệu quả</span>
                             </Title>
                             <Paragraph style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.2rem', maxWidth: 500 }}>
@@ -106,13 +106,15 @@ const StatItem = ({ number, label }) => (
 
 const styles = {
     heroSection: {
-        height: '90vh',
+        minHeight: '90vh',
+        height: 'auto',
         background: 'linear-gradient(135deg, #001529 0%, #003a8c 100%)',
         position: 'relative',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        padding: '50px 0'
     },
     overlay: {
         position: 'absolute',

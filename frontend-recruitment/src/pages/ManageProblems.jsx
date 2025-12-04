@@ -144,8 +144,8 @@ const ManageProblems = () => {
     return (
         <div style={{ padding: 20 }}>
             <Card>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-                    <Title level={3}>Quản lý ngân hàng đề (Problems)</Title>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: '10px' }}>
+                    <Title level={3} style={{ margin: 0 }}>Quản lý ngân hàng đề</Title>
                     <Space>
                         <Button icon={<ReloadOutlined />} onClick={fetchProblems}>Làm mới</Button>
                         <Button type="primary" icon={<PlusOutlined />} onClick={() => handleOpenModal(null)}>
@@ -161,6 +161,7 @@ const ManageProblems = () => {
                     loading={loading}
                     bordered
                     pagination={{ pageSize: 6 }}
+                    scroll={{ x: true }}
                 />
             </Card>
 
@@ -170,6 +171,7 @@ const ManageProblems = () => {
                 onCancel={() => setIsModalVisible(false)}
                 onOk={() => form.submit()}
                 width={800}
+                style={{ top: 20 }}
             >
                 <Form form={form} layout="vertical" onFinish={handleSave}>
                     <Form.Item
@@ -180,8 +182,8 @@ const ManageProblems = () => {
                         <Input placeholder="Ví dụ: Two Sum" />
                     </Form.Item>
 
-                    <div style={{ display: 'flex', gap: 16 }}>
-                        <Form.Item name="difficulty" label="Độ khó" style={{ flex: 1 }} initialValue="EASY">
+                    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                        <Form.Item name="difficulty" label="Độ khó" style={{ flex: 1, minWidth: '120px' }} initialValue="EASY">
                             <Select>
                                 <Option value="EASY">EASY</Option>
                                 <Option value="MEDIUM">MEDIUM</Option>
@@ -189,11 +191,11 @@ const ManageProblems = () => {
                             </Select>
                         </Form.Item>
 
-                        <Form.Item name="cpuTimeLimit" label="Time Limit (giây)" style={{ flex: 1 }} initialValue={1.0}>
+                        <Form.Item name="cpuTimeLimit" label="Time Limit (giây)" style={{ flex: 1, minWidth: '120px' }} initialValue={1.0}>
                             <InputNumber step={0.1} style={{ width: '100%' }} />
                         </Form.Item>
 
-                        <Form.Item name="memoryLimitMb" label="Memory Limit (MB)" style={{ flex: 1 }} initialValue={256}>
+                        <Form.Item name="memoryLimitMb" label="Memory Limit (MB)" style={{ flex: 1, minWidth: '120px' }} initialValue={256}>
                             <InputNumber style={{ width: '100%' }} />
                         </Form.Item>
                     </div>
@@ -225,12 +227,12 @@ const ManageProblems = () => {
                             {(fields, { add, remove }) => (
                                 <>
                                     {fields.map(({ key, name, ...restField }) => (
-                                        <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                                        <Space key={key} style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }} align="baseline">
                                             <Form.Item
                                                 {...restField}
                                                 name={[name, 'input']}
                                                 rules={[{ required: true, message: 'Nhập Input' }]}
-                                                style={{ flex: 1 }}
+                                                style={{ flex: 1, minWidth: '150px' }}
                                             >
                                                 <TextArea placeholder="Input" autoSize />
                                             </Form.Item>
@@ -238,7 +240,7 @@ const ManageProblems = () => {
                                                 {...restField}
                                                 name={[name, 'output']}
                                                 rules={[{ required: true, message: 'Nhập Output' }]}
-                                                style={{ flex: 1 }}
+                                                style={{ flex: 1, minWidth: '150px' }}
                                             >
                                                 <TextArea placeholder="Expected Output" autoSize />
                                             </Form.Item>
