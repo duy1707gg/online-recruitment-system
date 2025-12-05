@@ -102,6 +102,10 @@ const LoginPage = () => {
                             <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" size="large" />
                         </Form.Item>
 
+                        <div style={{ textAlign: 'right', marginBottom: 15 }}>
+                            <Link to="/forgot-password" style={{ color: '#1890ff' }}>Quên mật khẩu?</Link>
+                        </div>
+
                         {loginError && (
                             <div style={{ marginBottom: 15 }}>
                                 <Text type="danger">{loginError}</Text>

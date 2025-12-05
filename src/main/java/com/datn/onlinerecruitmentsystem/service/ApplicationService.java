@@ -120,12 +120,11 @@ public class ApplicationService {
             ApplicationStatus newStatus = ApplicationStatus.valueOf(statusStr);
             app.setStatus(newStatus);
 
-            // Send email based on status
             String candidateEmail = app.getCandidate().getEmail();
             String jobTitle = app.getJob().getTitle();
 
             if (newStatus == ApplicationStatus.OFFERED) {
-                String schedulerEmail = "tuyendung@cmc.com.vn"; // Default
+                String schedulerEmail = "tuyendung@cmc.com.vn";
                 if (app.getInterview() != null) {
                     if (app.getInterview().getScheduler() != null) {
                         schedulerEmail = app.getInterview().getScheduler().getEmail();

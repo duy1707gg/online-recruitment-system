@@ -58,10 +58,14 @@ const MainLayout = () => {
             { key: 'my-apps', label: <Link to="/my-applications">Hồ sơ của tôi</Link>, icon: <UserOutlined /> },
         );
     } else {
-        if (user?.role === 'RECRUITER' || user?.role === 'ADMIN') {
+        if (user?.role === 'RECRUITER') {
             navItems.push(
                 { key: 'post', label: <Link to="/post-job">Đăng tuyển</Link>, icon: <FormOutlined /> },
-                { key: 'manage', label: <Link to="/manage-jobs">Quản lý tuyển dụng</Link>, icon: <UserOutlined /> },
+                { key: 'manage', label: <Link to="/manage-jobs">Quản lý tuyển dụng</Link>, icon: <UserOutlined /> }
+            );
+        }
+        if (user?.role === 'RECRUITER' || user?.role === 'ADMIN') {
+            navItems.push(
                 { key: 'dashboard', label: <Link to="/dashboard/analytics">Thống kê</Link>, icon: <BarChartOutlined /> }
             );
         }

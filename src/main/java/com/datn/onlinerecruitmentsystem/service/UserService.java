@@ -9,16 +9,20 @@ import com.datn.onlinerecruitmentsystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final com.datn.onlinerecruitmentsystem.repository.PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
@@ -102,5 +106,40 @@ public class UserService {
         user.setRole(request.getRole());
 
         return userRepository.save(user);
+    }
+
+    public void createPasswordResetTokenForUser(User user, String token) {
+        // Remove existing token if any
+        passwordResetTokenRepository.findByUser(user).ifPresent(passwordResetTokenRepository::delete);
+
+        com.datn.onlinerecruitmentsystem.entity.PasswordResetToken myToken = new com.datn.onlinerecruitmentsystem.entity.PasswordResetToken(
+                token, user);
+        passwordResetTokenRepository.save(myToken);
+    }
+
+    public String validatePasswordResetToken(String token) {
+        final Optional<com.datn.onlinerecruitmentsystem.entity.PasswordResetToken> passToken = passwordResetTokenRepository
+                .findByToken(token);
+
+        return !passToken.isPresent() ? "invalidToken"
+                : isTokenExpired(passToken.get()) ? "expired"
+                        : null;
+    }
+
+    private boolean isTokenExpired(com.datn.onlinerecruitmentsystem.entity.PasswordResetToken passToken) {
+        final java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        return passToken.getExpiryDate().isBefore(now);
+    }
+
+    public User getUserByPasswordResetToken(String token) {
+        return passwordResetTokenRepository.findByToken(token)
+                .map(com.datn.onlinerecruitmentsystem.entity.PasswordResetToken::getUser)
+                .orElse(null);
+    }
+
+    public void changeUserPassword(User user, String password) {
+        user.setPasswordHash(passwordEncoder.encode(password));
+        userRepository.save(user);
+        passwordResetTokenRepository.deleteByUser(user);
     }
 }

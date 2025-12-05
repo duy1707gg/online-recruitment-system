@@ -14,6 +14,8 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import ManageUsers from './pages/ManageUsers';
 import ChatbotWidget from "./pages/ChatbotWidget.jsx";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard.jsx";
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 const ProtectedRoute = ({ children }) => {
     const token = localStorage.getItem('token');
@@ -84,6 +86,8 @@ function App() {
                         </RoleRoute>
                     } />
                 </Route>
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
             </Routes>
         </BrowserRouter>
     );
