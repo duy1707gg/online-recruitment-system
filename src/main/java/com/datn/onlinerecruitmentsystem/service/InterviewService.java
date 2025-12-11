@@ -156,11 +156,4 @@ public class InterviewService {
                                 .orElseThrow(() -> new RuntimeException("Room not found"));
         }
 
-        public Interview submitFeedback(Long interviewId, String feedback, String result) {
-                Interview interview = interviewRepository.findById(interviewId)
-                                .orElseThrow(() -> new RuntimeException("Interview not found"));
-                interview.setFeedback(feedback);
-                interview.setResult(result);
-                return interviewRepository.save(interview);
-        }
 }

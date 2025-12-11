@@ -33,11 +33,4 @@ public class InterviewController {
         return ResponseEntity.ok(interviewService.getInterviewByRoomId(roomId));
     }
 
-    @PostMapping("/{id}/feedback")
-    @PreAuthorize("hasAnyRole('RECRUITER', 'ADMIN')")
-    public ResponseEntity<Interview> submitFeedback(@PathVariable Long id,
-            @RequestBody String feedback,
-            @RequestParam String result) {
-        return ResponseEntity.ok(interviewService.submitFeedback(id, feedback, result));
-    }
 }

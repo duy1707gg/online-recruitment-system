@@ -28,8 +28,6 @@ public class Interview {
     private String roomId;
     private String meetingLink;
 
-    @Column(columnDefinition = "TEXT")
-    private String feedback;
     private String result;
 
     private LocalDateTime createdAt = LocalDateTime.now();
