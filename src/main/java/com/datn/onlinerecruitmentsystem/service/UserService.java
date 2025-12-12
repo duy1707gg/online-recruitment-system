@@ -22,7 +22,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final com.datn.onlinerecruitmentsystem.repository.PasswordResetTokenRepository passwordResetTokenRepository;
-    private final EmailService emailService;
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
@@ -141,5 +140,26 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(password));
         userRepository.save(user);
         passwordResetTokenRepository.deleteByUser(user);
+    }
+
+    public String uploadAvatar(String email, org.springframework.web.multipart.MultipartFile file)
+            throws java.io.IOException {
+        User user = getUserByEmail(email);
+
+        String fileName = java.util.UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+
+        java.nio.file.Path uploadDir = java.nio.file.Paths.get("uploads");
+        if (!java.nio.file.Files.exists(uploadDir)) {
+            java.nio.file.Files.createDirectories(uploadDir);
+        }
+        java.nio.file.Path filePath = uploadDir.resolve(fileName);
+
+        java.nio.file.Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+        String fileUrl = "/uploads/" + fileName;
+        user.setAvatarUrl(fileUrl);
+        userRepository.save(user);
+
+        return fileUrl;
     }
 }

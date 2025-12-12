@@ -1,8 +1,8 @@
 package com.datn.onlinerecruitmentsystem.controller;
 
 import com.datn.onlinerecruitmentsystem.entity.Notification;
-import com.datn.onlinerecruitmentsystem.repository.NotificationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.datn.onlinerecruitmentsystem.service.NotificationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,32 +10,29 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
+@RequiredArgsConstructor
 public class NotificationController {
-    @Autowired
-    private NotificationRepository notificationRepository;
+
+    private final NotificationService notificationService;
 
     @GetMapping("/{userId}")
     public List<Notification> getUserNotifications(@PathVariable Long userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return notificationService.getUserNotifications(userId);
     }
 
     @PutMapping("/{id}/read")
     public void markAsRead(@PathVariable Long id) {
-        Notification n = notificationRepository.findById(id).orElse(null);
-        if (n != null) {
-            n.setRead(true);
-            notificationRepository.save(n);
-        }
+        notificationService.markAsRead(id);
     }
 
     @PutMapping("/read-all/{userId}")
     public void markAllAsRead(@PathVariable Long userId) {
-        notificationRepository.markAllAsReadByUserId(userId);
+        notificationService.markAllAsRead(userId);
     }
 
     @DeleteMapping("/delete-all/{userId}")
     public ResponseEntity<?> deleteAllNotifications(@PathVariable Long userId) {
-        notificationRepository.deleteAllByUserId(userId);
+        notificationService.deleteAllByUserId(userId);
         return ResponseEntity.ok().build();
     }
 }

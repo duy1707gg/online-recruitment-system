@@ -7,7 +7,7 @@ import com.datn.onlinerecruitmentsystem.entity.User;
 import com.datn.onlinerecruitmentsystem.enums.JobStatus;
 import com.datn.onlinerecruitmentsystem.exception.ResourceNotFoundException;
 import com.datn.onlinerecruitmentsystem.repository.JobRepository;
-import com.datn.onlinerecruitmentsystem.repository.JobSpecification;
+import com.datn.onlinerecruitmentsystem.specification.JobSpecification;
 import com.datn.onlinerecruitmentsystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

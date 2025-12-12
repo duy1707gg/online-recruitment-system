@@ -9,10 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import java.nio.file.*;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -33,7 +31,6 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
@@ -42,23 +39,9 @@ public class UserController {
     @PostMapping("/upload-avatar")
     public ResponseEntity<String> uploadAvatar(@RequestParam("file") MultipartFile file) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userService.getUserByEmail(email);
 
         try {
-            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-
-            Path uploadDir = Paths.get("uploads");
-            if (!Files.exists(uploadDir)) {
-                Files.createDirectories(uploadDir);
-            }
-            Path filePath = uploadDir.resolve(fileName);
-
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            String fileUrl = "/uploads/" + fileName;
-            user.setAvatarUrl(fileUrl);
-            userService.saveUser(user);
-
+            String fileUrl = userService.uploadAvatar(email, file);
             return ResponseEntity.ok(fileUrl);
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body("Lỗi tải ảnh: " + e.getMessage());
