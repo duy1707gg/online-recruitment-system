@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import MainLayout from './components/MainLayout';
+import ErrorBoundary from './components/ErrorBoundary';
 import PostJob from './pages/PostJob';
 import JobList from './pages/JobList';
 import InterviewRoom from './pages/InterviewRoom';
@@ -42,54 +43,56 @@ const RoleRoute = ({ children, allowedRoles }) => {
 
 function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/" element={
-                    <ProtectedRoute>
-                        <MainLayout />
-                    </ProtectedRoute>
-                }>
+        <ErrorBoundary>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/" element={
+                        <ProtectedRoute>
+                            <MainLayout />
+                        </ProtectedRoute>
+                    }>
 
-                    <Route index element={<HomePage />} />
+                        <Route index element={<HomePage />} />
 
-                    <Route path="post-job" element={
-                        <RoleRoute allowedRoles={['RECRUITER', 'ADMIN']}>
-                            <PostJob />
-                        </RoleRoute>
-                    } />
-                    <Route path="jobs" element={<JobList />} />
-                    <Route path="/manage-users" element={
-                        <RoleRoute allowedRoles={['ADMIN']}>
-                            <ManageUsers />
-                        </RoleRoute>
-                    } />
+                        <Route path="post-job" element={
+                            <RoleRoute allowedRoles={['RECRUITER', 'ADMIN']}>
+                                <PostJob />
+                            </RoleRoute>
+                        } />
+                        <Route path="jobs" element={<JobList />} />
+                        <Route path="/manage-users" element={
+                            <RoleRoute allowedRoles={['ADMIN']}>
+                                <ManageUsers />
+                            </RoleRoute>
+                        } />
 
-                    <Route path="room/:roomId" element={<InterviewRoom />} />
-                    <Route path="/chat" element={<ChatbotWidget />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="my-applications" element={<MyApplications />} />
-                    <Route path="manage-jobs" element={
-                        <RoleRoute allowedRoles={['RECRUITER', 'ADMIN']}>
-                            <ManageJobs />
-                        </RoleRoute>
-                    } />
-                    <Route path="manage-problems" element={
-                        <RoleRoute allowedRoles={['RECRUITER', 'ADMIN']}>
-                            <ManageProblems />
-                        </RoleRoute>
-                    } />
-                    <Route path="dashboard/analytics" element={
-                        <RoleRoute allowedRoles={['RECRUITER', 'ADMIN']}>
-                            <AnalyticsDashboard />
-                        </RoleRoute>
-                    } />
-                </Route>
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
-            </Routes>
-        </BrowserRouter>
+                        <Route path="room/:roomId" element={<InterviewRoom />} />
+                        <Route path="/chat" element={<ChatbotWidget />} />
+                        <Route path="/profile" element={<ProfilePage />} />
+                        <Route path="my-applications" element={<MyApplications />} />
+                        <Route path="manage-jobs" element={
+                            <RoleRoute allowedRoles={['RECRUITER', 'ADMIN']}>
+                                <ManageJobs />
+                            </RoleRoute>
+                        } />
+                        <Route path="manage-problems" element={
+                            <RoleRoute allowedRoles={['RECRUITER', 'ADMIN']}>
+                                <ManageProblems />
+                            </RoleRoute>
+                        } />
+                        <Route path="dashboard/analytics" element={
+                            <RoleRoute allowedRoles={['RECRUITER', 'ADMIN']}>
+                                <AnalyticsDashboard />
+                            </RoleRoute>
+                        } />
+                    </Route>
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
+                </Routes>
+            </BrowserRouter>
+        </ErrorBoundary>
     );
 }
 

@@ -20,6 +20,7 @@ public class Job {
 
     private String salaryRange;
     private String location;
+    private String category; // IT, Marketing, HR, Finance, etc.
 
     @Enumerated(EnumType.STRING)
     private JobStatus status = JobStatus.OPEN;
