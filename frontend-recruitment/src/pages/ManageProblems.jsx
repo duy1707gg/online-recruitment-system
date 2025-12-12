@@ -214,7 +214,13 @@ const ManageProblems = () => {
                     <Form.Item
                         name="templateCode"
                         label="Code Mẫu (Template)"
-                        initialValue={`public class Main {\n    public static void main(String[] args) {\n        // Code here\n    }\n}`}
+                        initialValue={`public class Main {
+    
+                                        public static void main(String[] args) {
+ 
+                                               // Code here
+                                    }
+               }`}
                     >
                         <TextArea
                             rows={8}
