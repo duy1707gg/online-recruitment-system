@@ -22,6 +22,15 @@ public class Job {
     private String location;
     private String category; // IT, Marketing, HR, Finance, etc.
 
+    @Column(columnDefinition = "TEXT")
+    private String requirements;
+
+    @Column(columnDefinition = "TEXT")
+    private String benefits;
+
+    private String workingTime; // Full-time, Part-time, Remote, Hybrid
+    private String level; // Intern, Junior, Middle, Senior, Manager
+
     @Enumerated(EnumType.STRING)
     private JobStatus status = JobStatus.OPEN;
 

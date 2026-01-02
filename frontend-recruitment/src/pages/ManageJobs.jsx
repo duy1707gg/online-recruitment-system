@@ -70,7 +70,15 @@ const ManageJobs = () => {
             description: job.description,
             salaryRange: job.salaryRange,
             location: job.location,
-            status: job.status
+            title: job.title,
+            description: job.description,
+            salaryRange: job.salaryRange,
+            location: job.location,
+            status: job.status,
+            workingTime: job.workingTime,
+            level: job.level,
+            requirements: job.requirements,
+            benefits: job.benefits
         });
         setIsModalEditOpen(true);
     };
@@ -308,7 +316,41 @@ const ManageJobs = () => {
                     </Form.Item>
                     <Form.Item name="salaryRange" label="Mức lương"><Input /></Form.Item>
                     <Form.Item name="location" label="Địa điểm"><Input /></Form.Item>
+
+                    <Form.Item name="workingTime" label="Hình thức làm việc">
+                        <Select>
+                            <Option value="Full-time">Full-time</Option>
+                            <Option value="Part-time">Part-time</Option>
+                            <Option value="Remote">Remote</Option>
+                            <Option value="Hybrid">Hybrid</Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item name="level" label="Cấp bậc">
+                        <Select>
+                            <Option value="Intern">Intern</Option>
+                            <Option value="Junior">Junior</Option>
+                            <Option value="Middle">Middle</Option>
+                            <Option value="Senior">Senior</Option>
+                            <Option value="Manager">Manager</Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item label="Ngành nghề" name="category" rules={[{ required: true, message: 'Vui lòng chọn ngành nghề' }]}>
+                        <Select placeholder="Chọn ngành nghề">
+                            <Select.Option value="IT">Công nghệ thông tin</Select.Option>
+                            <Select.Option value="Marketing">Marketing</Select.Option>
+                            <Select.Option value="HR">Nhân sự</Select.Option>
+                            <Select.Option value="Finance">Tài chính - Kế toán</Select.Option>
+                            <Select.Option value="Sales">Kinh doanh</Select.Option>
+                            <Select.Option value="Design">Thiết kế</Select.Option>
+                            <Select.Option value="Other">Khác</Select.Option>
+                        </Select>
+                    </Form.Item>
+
                     <Form.Item name="description" label="Mô tả chi tiết"><Input.TextArea rows={4} /></Form.Item>
+                    <Form.Item name="requirements" label="Yêu cầu công việc"><Input.TextArea rows={4} /></Form.Item>
+                    <Form.Item name="benefits" label="Quyền lợi & Chế độ"><Input.TextArea rows={4} /></Form.Item>
                     <div style={{ textAlign: 'right' }}>
                         <Button onClick={() => setIsModalEditOpen(false)} style={{ marginRight: 8 }}>Hủy</Button>
                         <Button type="primary" htmlType="submit">Lưu thay đổi</Button>

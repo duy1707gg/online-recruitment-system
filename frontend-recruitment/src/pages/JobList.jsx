@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { List, Card, Button, Tag, Modal, message, Upload, Typography, Input, Select, Pagination, Row, Col, Space, Empty } from 'antd';
+import { List, Card, Button, Tag, Modal, message, Upload, Typography, Input, Select, Pagination, Row, Col, Space, Empty, AutoComplete } from 'antd';
 import { DollarOutlined, EnvironmentOutlined, InboxOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import axiosClient from '../api/axiosClient';
 
@@ -44,10 +44,18 @@ const JobList = () => {
 
     // Apply modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedJobId, setSelectedJobId] = useState(null);
+    const [selectedJob, setSelectedJob] = useState(null);
     const [fileList, setFileList] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [applyError, setApplyError] = useState('');
+
+    // Suggestions state
+    const [suggestionContext, setSuggestionContext] = useState(null); // { category, title, id }
+
+    // AutoComplete options
+    const [searchOptions, setSearchOptions] = useState([]);
 
     const fetchJobs = useCallback(async () => {
         setLoading(true);
@@ -87,6 +95,19 @@ const JobList = () => {
     const handleSearch = (value) => {
         setKeyword(value);
         setCurrentPage(1); // Reset to first page
+    };
+
+    const handleSearchChange = (value) => {
+        setKeyword(value);
+        if (!value) {
+            setSearchOptions([]);
+        } else {
+            // Filter unique titles for autocomplete
+            const uniqueTitles = [...new Set(jobs.map(job => job.title))]
+                .filter(title => title.toLowerCase().includes(value.toLowerCase()))
+                .map(title => ({ value: title }));
+            setSearchOptions(uniqueTitles);
+        }
     };
 
     const handleLocationChange = (value) => {
@@ -168,6 +189,25 @@ const JobList = () => {
         }
     };
 
+    const handleViewJob = (job) => {
+        setSelectedJob(job);
+        setIsDetailModalOpen(true);
+        // Set context for suggestions (scoping to current job only)
+        setSuggestionContext({
+            category: job.category,
+            title: job.title,
+            id: job.id
+        });
+    };
+
+    const handleApplyFromDetail = () => {
+        setIsDetailModalOpen(false);
+        setSelectedJobId(selectedJob.id);
+        setFileList([]);
+        setApplyError('');
+        setIsModalOpen(true);
+    };
+
     return (
         <div style={{ padding: '20px', maxWidth: 1400, margin: '0 auto' }}>
             <Title level={2}>Việc làm đang tuyển</Title>
@@ -176,15 +216,21 @@ const JobList = () => {
             <Card style={{ marginBottom: 20 }}>
                 <Row gutter={[16, 16]} align="middle">
                     <Col xs={24} md={8}>
-                        <Search
-                            placeholder="Tìm kiếm theo tiêu đề, mô tả..."
-                            allowClear
-                            enterButton={<SearchOutlined />}
-                            size="large"
+                        <AutoComplete
+                            style={{ width: '100%' }}
+                            options={searchOptions}
+                            onSelect={handleSearch}
+                            onSearch={handleSearchChange}
                             value={keyword}
-                            onChange={(e) => setKeyword(e.target.value)}
-                            onSearch={handleSearch}
-                        />
+                        >
+                            <Search
+                                placeholder="Tìm kiếm theo tiêu đề..."
+                                allowClear
+                                enterButton={<SearchOutlined />}
+                                size="large"
+                                onSearch={handleSearch}
+                            />
+                        </AutoComplete>
                     </Col>
                     <Col xs={12} md={5}>
                         <Select
@@ -241,14 +287,28 @@ const JobList = () => {
                                     </Space>
                                 }
                                 hoverable
+                                onClick={() => handleViewJob(item)}
+                                style={{ cursor: 'pointer', height: '100%', display: 'flex', flexDirection: 'column' }}
+                                bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column' }}
                             >
-                                <p><DollarOutlined /> {item.salaryRange || 'Thỏa thuận'}</p>
-                                <p><EnvironmentOutlined /> {item.location || 'Remote/Office'}</p>
-                                <p style={{ color: '#666', height: 60, overflow: 'hidden' }}>
-                                    {item.description}
-                                </p>
+                                <div style={{ flex: 1 }}>
+                                    <p><DollarOutlined /> {item.salaryRange || 'Thỏa thuận'}</p>
+                                    <p><EnvironmentOutlined /> {item.location || 'Remote/Office'}</p>
+                                    <p><SearchOutlined /> {item.level || 'Không yêu cầu kinh nghiệm'}</p>
+                                    <p style={{
+                                        color: '#666',
+                                        overflow: 'hidden',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 3,
+                                        WebkitBoxOrient: 'vertical',
+                                        marginTop: 10
+                                    }}>
+                                        {item.description}
+                                    </p>
+                                </div>
 
-                                <Button type="primary" block onClick={() => {
+                                <Button type="primary" block style={{ marginTop: 15 }} onClick={(e) => {
+                                    e.stopPropagation();
                                     setSelectedJobId(item.id);
                                     setFileList([]);
                                     setApplyError('');
@@ -278,6 +338,40 @@ const JobList = () => {
                 </div>
             )}
 
+            {/* Suggested Jobs Section */}
+            {suggestionContext && (
+                <div style={{ marginTop: 40, borderTop: '1px solid #f0f0f0', paddingTop: 20 }}>
+                    <Title level={3}>Có thể bạn quan tâm</Title>
+                    <List
+                        grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 3, xxl: 3 }}
+                        dataSource={jobs.filter(job => {
+                            if (job.id === suggestionContext.id) return false;
+                            // Logic: Same category OR Title contains parts of the viewed title
+                            const sameCategory = job.category === suggestionContext.category;
+                            // Simple title matching: check if suggestion title includes viewed title or vice versa
+                            // const similarTitle = job.title.toLowerCase().includes(suggestionContext.title.toLowerCase()) || 
+                            //                      suggestionContext.title.toLowerCase().includes(job.title.toLowerCase());
+                            return sameCategory;
+                        }).slice(0, 3)}
+                        renderItem={(item) => (
+                            <List.Item>
+                                <Card
+                                    size="small"
+                                    title={item.title}
+                                    extra={<Tag color="green">Gợi ý</Tag>}
+                                    hoverable
+                                    onClick={() => handleViewJob(item)}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <p><EnvironmentOutlined /> {item.location}</p>
+                                    <p><DollarOutlined /> {item.salaryRange}</p>
+                                </Card>
+                            </List.Item>
+                        )}
+                    />
+                </div>
+            )}
+
             {/* Apply Modal */}
             <Modal
                 title="Nộp hồ sơ ứng tuyển"
@@ -302,6 +396,63 @@ const JobList = () => {
                 {applyError && (
                     <div style={{ marginTop: 10, textAlign: 'center' }}>
                         <Text type="danger">{applyError}</Text>
+                    </div>
+                )}
+            </Modal>
+
+            {/* Job Detail Modal */}
+            <Modal
+                title={null}
+                open={isDetailModalOpen}
+                onCancel={() => setIsDetailModalOpen(false)}
+                footer={null}
+                width={800}
+                style={{ top: 20 }}
+            >
+                {selectedJob && (
+                    <div>
+                        <div style={{ borderBottom: '1px solid #f0f0f0', paddingBottom: 15, marginBottom: 20 }}>
+                            <Title level={3} style={{ marginBottom: 10 }}>{selectedJob.title}</Title>
+                            <Space size="large" wrap>
+                                <Text strong style={{ color: '#2563eb', fontSize: 16 }}>
+                                    <DollarOutlined /> {selectedJob.salaryRange || 'Thỏa thuận'}
+                                </Text>
+                                <Text><EnvironmentOutlined /> {selectedJob.location}</Text>
+                                {selectedJob.workingTime && <Tag color="blue">{selectedJob.workingTime}</Tag>}
+                                {selectedJob.level && <Tag color="orange">{selectedJob.level}</Tag>}
+                            </Space>
+                        </div>
+
+                        <div style={{ marginBottom: 20 }}>
+                            <Title level={5}>Mô tả công việc</Title>
+                            <div style={{ whiteSpace: 'pre-line', color: '#4b5563' }}>
+                                {selectedJob.description}
+                            </div>
+                        </div>
+
+                        {selectedJob.requirements && (
+                            <div style={{ marginBottom: 20 }}>
+                                <Title level={5}>Yêu cầu ứng viên</Title>
+                                <div style={{ whiteSpace: 'pre-line', color: '#4b5563' }}>
+                                    {selectedJob.requirements}
+                                </div>
+                            </div>
+                        )}
+
+                        {selectedJob.benefits && (
+                            <div style={{ marginBottom: 20 }}>
+                                <Title level={5}>Quyền lợi</Title>
+                                <div style={{ whiteSpace: 'pre-line', color: '#4b5563' }}>
+                                    {selectedJob.benefits}
+                                </div>
+                            </div>
+                        )}
+
+                        <div style={{ marginTop: 30, textAlign: 'center' }}>
+                            <Button type="primary" size="large" style={{ width: 200 }} onClick={handleApplyFromDetail}>
+                                Ứng tuyển ngay
+                            </Button>
+                        </div>
                     </div>
                 )}
             </Modal>

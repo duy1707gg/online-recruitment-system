@@ -23,7 +23,7 @@ const PostJob = () => {
                 status: 'OPEN'
             });
             message.success('Đăng tin tuyển dụng thành công!');
-            navigate('/jobs');
+            navigate('/manage-jobs');
         } catch (error) {
             message.error('Có lỗi xảy ra!');
         } finally {
@@ -43,12 +43,30 @@ const PostJob = () => {
                         <Input placeholder="VD: 1000$ - 2000$" />
                     </Form.Item>
 
+                    <Form.Item label="Hình thức làm việc" name="workingTime" rules={[{ required: true, message: 'Vui lòng chọn hình thức làm việc' }]}>
+                        <Select placeholder="Chọn hình thức làm việc">
+                            <Select.Option value="Full-time">Full-time</Select.Option>
+                            <Select.Option value="Part-time">Part-time</Select.Option>
+                            <Select.Option value="Remote">Remote</Select.Option>
+                            <Select.Option value="Hybrid">Hybrid</Select.Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item label="Cấp bậc" name="level" rules={[{ required: true, message: 'Vui lòng chọn cấp bậc' }]}>
+                        <Select placeholder="Chọn cấp bậc">
+                            <Select.Option value="Intern">Intern</Select.Option>
+                            <Select.Option value="Junior">Junior</Select.Option>
+                            <Select.Option value="Middle">Middle</Select.Option>
+                            <Select.Option value="Senior">Senior</Select.Option>
+                            <Select.Option value="Manager">Manager</Select.Option>
+                        </Select>
+                    </Form.Item>
+
                     <Form.Item label="Địa điểm" name="location" rules={[{ required: true, message: 'Vui lòng nhập địa điểm' }]}>
                         <Select placeholder="Chọn địa điểm">
                             <Select.Option value="Hà Nội">Hà Nội</Select.Option>
                             <Select.Option value="Hồ Chí Minh">Hồ Chí Minh</Select.Option>
                             <Select.Option value="Đà Nẵng">Đà Nẵng</Select.Option>
-                            <Select.Option value="Remote">Remote</Select.Option>
                         </Select>
                     </Form.Item>
 
@@ -66,6 +84,14 @@ const PostJob = () => {
 
                     <Form.Item label="Mô tả chi tiết" name="description" rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}>
                         <TextArea rows={6} placeholder="Mô tả yêu cầu công việc..." />
+                    </Form.Item>
+
+                    <Form.Item label="Yêu cầu công việc" name="requirements" rules={[{ required: true, message: 'Vui lòng nhập yêu cầu' }]}>
+                        <TextArea rows={6} placeholder="Các kỹ năng, kinh nghiệm yêu cầu..." />
+                    </Form.Item>
+
+                    <Form.Item label="Quyền lợi & Chế độ" name="benefits" rules={[{ required: true, message: 'Vui lòng nhập quyền lợi' }]}>
+                        <TextArea rows={6} placeholder="Bảo hiểm, thưởng, chế độ đãi ngộ..." />
                     </Form.Item>
 
                     <Button type="primary" htmlType="submit" loading={loading}>

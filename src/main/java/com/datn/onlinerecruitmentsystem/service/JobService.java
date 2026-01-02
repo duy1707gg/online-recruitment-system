@@ -81,7 +81,12 @@ public class JobService {
         job.setDescription(request.getDescription());
         job.setSalaryRange(request.getSalaryRange());
         job.setLocation(request.getLocation());
+        job.setLocation(request.getLocation());
         job.setCategory(request.getCategory());
+        job.setRequirements(request.getRequirements());
+        job.setBenefits(request.getBenefits());
+        job.setWorkingTime(request.getWorkingTime());
+        job.setLevel(request.getLevel());
         job.setRecruiter(recruiter);
         job.setStatus(JobStatus.OPEN);
 
@@ -99,6 +104,15 @@ public class JobService {
         if (jobDetails.getCategory() != null) {
             job.setCategory(jobDetails.getCategory());
         }
+        if (jobDetails.getRequirements() != null)
+            job.setRequirements(jobDetails.getRequirements());
+        if (jobDetails.getBenefits() != null)
+            job.setBenefits(jobDetails.getBenefits());
+        if (jobDetails.getWorkingTime() != null)
+            job.setWorkingTime(jobDetails.getWorkingTime());
+        if (jobDetails.getLevel() != null)
+            job.setLevel(jobDetails.getLevel());
+
         if (jobDetails.getStatus() != null) {
             job.setStatus(jobDetails.getStatus());
         }
