@@ -31,6 +31,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/recruiters")
+    public ResponseEntity<List<User>> getRecruiters() {
+        return ResponseEntity.ok(userService.getAllRecruiters());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));

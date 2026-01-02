@@ -151,6 +151,59 @@ public class InterviewService {
                 return savedInterview;
         }
 
+        public Interview updateInterview(Long interviewId, Long interviewerId, String timeStr, String schedulerEmail) {
+                Interview interview = interviewRepository.findById(interviewId)
+                                .orElseThrow(() -> new RuntimeException("Không tìm thấy lịch phỏng vấn!"));
+
+                User interviewer = userRepository.findById(interviewerId)
+                                .orElseThrow(() -> new RuntimeException("Không tìm thấy người phỏng vấn!"));
+
+                LocalDateTime scheduledTime = LocalDateTime.parse(timeStr);
+
+                // Check logic valid time? (Optional)
+
+                interview.setInterviewer(interviewer);
+                interview.setScheduledTime(scheduledTime);
+                // Don't change room ID or meeting link to keep consistency unless required
+
+                Interview savedInterview = interviewRepository.save(interview);
+                Application app = interview.getApplication();
+
+                // Notify everyone about the update
+                // Notify Interviewer
+                Notification notif = new Notification();
+                notif.setUserId(interviewerId);
+                notif.setContent("Lịch phỏng vấn đã được cập nhật sang " + timeStr);
+                notif.setRead(false);
+                notificationRepository.save(notif);
+                messagingTemplate.convertAndSend("/topic/notifications/" + interviewerId, notif);
+
+                // Notify Candidate
+                User candidate = app.getCandidate();
+                if (candidate != null) {
+                        Notification candidateNotif = new Notification();
+                        candidateNotif.setUserId(candidate.getId());
+                        candidateNotif.setContent("Lịch phỏng vấn cho vị trí " + app.getJob().getTitle()
+                                        + " đã được thay đổi sang " + timeStr);
+                        candidateNotif.setRead(false);
+                        notificationRepository.save(candidateNotif);
+                        messagingTemplate.convertAndSend("/topic/notifications/" + candidate.getId(), candidateNotif);
+
+                        // Email Candidate
+                        emailService.sendSimpleMessage(
+                                        candidate.getEmail(),
+                                        "Cập nhật lịch phỏng vấn - " + app.getJob().getTitle(),
+                                        "Lịch phỏng vấn của bạn đã được thay đổi.\n" +
+                                                        "Thời gian mới: " + timeStr + "\n" +
+                                                        "Link phòng họp: " + interview.getMeetingLink());
+                }
+
+                // Notify Old Interviewer if changed????? (Advanced: skip for now to keep it
+                // simple as per request)
+
+                return savedInterview;
+        }
+
         public Interview getInterviewByRoomId(String roomId) {
                 return interviewRepository.findByRoomId(roomId)
                                 .orElseThrow(() -> new RuntimeException("Room not found"));

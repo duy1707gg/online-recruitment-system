@@ -13,13 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +23,7 @@ public class ApplicationService {
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final DBFileService dbFileService;
 
     public Application applyJob(String email, Long jobId, MultipartFile cvFile) throws IOException {
         User candidate = userRepository.findByEmail(email)
@@ -44,14 +40,8 @@ public class ApplicationService {
             throw new RuntimeException("Bạn đã ứng tuyển công việc này rồi!");
         }
 
-        String fileName = UUID.randomUUID().toString() + "_" + cvFile.getOriginalFilename();
-        Path uploadDir = Paths.get("uploads");
-        if (!Files.exists(uploadDir)) {
-            Files.createDirectories(uploadDir);
-        }
-        Path filePath = uploadDir.resolve(fileName);
-        Files.copy(cvFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-        String cvUrl = "/uploads/" + fileName;
+        com.datn.onlinerecruitmentsystem.entity.DBFile dbFile = dbFileService.storeFile(cvFile);
+        String cvUrl = "/api/v1/files/view/" + dbFile.getId();
 
         Application application = new Application();
         application.setCandidate(candidate);
@@ -67,16 +57,9 @@ public class ApplicationService {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
 
-        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-        Path uploadPath = Paths.get("uploads");
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
+        com.datn.onlinerecruitmentsystem.entity.DBFile dbFile = dbFileService.storeFile(file);
 
-        Path filePath = uploadPath.resolve(fileName);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        application.setCvUrl("/uploads/" + fileName);
+        application.setCvUrl("/api/files/view/" + dbFile.getId());
         applicationRepository.save(application);
     }
 

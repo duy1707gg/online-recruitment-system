@@ -27,6 +27,16 @@ public class InterviewController {
                 .ok(interviewService.scheduleInterview(applicationId, interviewerId, time, schedulerEmail));
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('RECRUITER', 'ADMIN')")
+    public ResponseEntity<Interview> updateInterview(@PathVariable Long id,
+            @RequestParam Long interviewerId,
+            @RequestParam String time,
+            Authentication authentication) {
+        String schedulerEmail = authentication.getName();
+        return ResponseEntity.ok(interviewService.updateInterview(id, interviewerId, time, schedulerEmail));
+    }
+
     @GetMapping("/room/{roomId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Interview> getInterviewByRoom(@PathVariable String roomId) {

@@ -29,6 +29,10 @@ const ManageJobs = () => {
     const [currentAppIdForSchedule, setCurrentAppIdForSchedule] = useState(null);
     const [isScheduling, setIsScheduling] = useState(false);
 
+    // New state for editing
+    const [isEditingSchedule, setIsEditingSchedule] = useState(false);
+    const [currentInterviewId, setCurrentInterviewId] = useState(null);
+
     const [formEdit] = Form.useForm();
     const [formSchedule] = Form.useForm();
     const navigate = useNavigate();
@@ -45,10 +49,11 @@ const ManageJobs = () => {
 
     const fetchInterviewers = async () => {
         try {
-            const res = await axiosClient.get('/users');
+            const res = await axiosClient.get('/users/recruiters');
 
             setInterviewers(res.data);
         } catch (error) {
+
             console.error("Không thể tải danh sách người dùng");
         }
     };
@@ -124,9 +129,21 @@ const ManageJobs = () => {
         setApplications(prev => prev.map(item => item.id === appId ? { ...item, status: newStatus } : item));
     };
 
-    const openScheduleModal = (applicationId) => {
+    const openScheduleModal = (applicationId, interview = null) => {
         setCurrentAppIdForSchedule(applicationId);
-        formSchedule.resetFields();
+        if (interview) {
+            setIsEditingSchedule(true);
+            setCurrentInterviewId(interview.id);
+            // Pre-fill form
+            formSchedule.setFieldsValue({
+                interviewerId: interview.interviewer ? interview.interviewer.id : null,
+                time: dayjs(interview.scheduledTime)
+            });
+        } else {
+            setIsEditingSchedule(false);
+            setCurrentInterviewId(null);
+            formSchedule.resetFields();
+        }
         setIsModalScheduleOpen(true);
     };
 
@@ -135,15 +152,24 @@ const ManageJobs = () => {
         try {
             const timeFormatted = values.time.format('YYYY-MM-DDTHH:mm:ss');
 
-            await axiosClient.post('/interviews/schedule', null, {
-                params: {
-                    applicationId: currentAppIdForSchedule,
-                    interviewerId: values.interviewerId,
-                    time: timeFormatted
-                }
-            });
-
-            message.success('Lên lịch phỏng vấn thành công!');
+            if (isEditingSchedule) {
+                await axiosClient.put(`/interviews/${currentInterviewId}`, null, {
+                    params: {
+                        interviewerId: values.interviewerId,
+                        time: timeFormatted
+                    }
+                });
+                message.success('Cập nhật lịch phỏng vấn thành công!');
+            } else {
+                await axiosClient.post('/interviews/schedule', null, {
+                    params: {
+                        applicationId: currentAppIdForSchedule,
+                        interviewerId: values.interviewerId,
+                        time: timeFormatted
+                    }
+                });
+                message.success('Lên lịch phỏng vấn thành công!');
+            }
             setIsModalScheduleOpen(false);
 
         } catch (error) {
@@ -235,13 +261,13 @@ const ManageJobs = () => {
                 return (
                     <Space wrap>
                         <Button
-                            type="dashed"
+                            type={isInterviewing ? "default" : "dashed"}
                             size="small"
-                            icon={<CalendarOutlined />}
-                            onClick={() => openScheduleModal(record.id)}
-                            disabled={record.status === 'OFFERED' || record.status === 'REJECTED' || isInterviewing}
+                            icon={isInterviewing ? <EditOutlined /> : <CalendarOutlined />}
+                            onClick={() => openScheduleModal(record.id, isInterviewing ? record.interview : null)}
+                            disabled={record.status === 'OFFERED' || record.status === 'REJECTED'}
                         >
-                            Lên lịch
+                            {isInterviewing ? "Cập nhật lịch" : "Lên lịch"}
                         </Button>
 
                         <Button
@@ -385,7 +411,9 @@ const ManageJobs = () => {
 
                     <div style={{ textAlign: 'right', marginTop: 20 }}>
                         <Button onClick={() => setIsModalScheduleOpen(false)} style={{ marginRight: 8 }}>Hủy</Button>
-                        <Button type="primary" htmlType="submit" loading={isScheduling}>Xác nhận lịch</Button>
+                        <Button type="primary" htmlType="submit" loading={isScheduling}>
+                            {isEditingSchedule ? "Cập nhật lịch" : "Xác nhận lịch"}
+                        </Button>
                     </div>
                 </Form>
             </Modal>

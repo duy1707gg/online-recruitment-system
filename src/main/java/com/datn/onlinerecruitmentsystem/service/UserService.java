@@ -23,6 +23,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final com.datn.onlinerecruitmentsystem.repository.PasswordResetTokenRepository passwordResetTokenRepository;
 
+    private final DBFileService dbFileService;
+
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -86,6 +88,10 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public List<User> getAllRecruiters() {
+        return userRepository.findByRole(Role.RECRUITER);
+    }
+
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("User not found");
@@ -146,17 +152,9 @@ public class UserService {
             throws java.io.IOException {
         User user = getUserByEmail(email);
 
-        String fileName = java.util.UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        com.datn.onlinerecruitmentsystem.entity.DBFile dbFile = dbFileService.storeFile(file);
 
-        java.nio.file.Path uploadDir = java.nio.file.Paths.get("uploads");
-        if (!java.nio.file.Files.exists(uploadDir)) {
-            java.nio.file.Files.createDirectories(uploadDir);
-        }
-        java.nio.file.Path filePath = uploadDir.resolve(fileName);
-
-        java.nio.file.Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-
-        String fileUrl = "/uploads/" + fileName;
+        String fileUrl = "/api/v1/files/view/" + dbFile.getId();
         user.setAvatarUrl(fileUrl);
         userRepository.save(user);
 
