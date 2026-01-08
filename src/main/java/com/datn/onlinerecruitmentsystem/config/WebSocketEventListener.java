@@ -1,7 +1,7 @@
 package com.datn.onlinerecruitmentsystem.config;
 
 import com.datn.onlinerecruitmentsystem.service.InterviewRoomTracker;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
@@ -12,10 +12,10 @@ import java.util.Map;
 
 
 @Component
+@RequiredArgsConstructor
 public class WebSocketEventListener {
 
-    @Autowired
-    private InterviewRoomTracker roomTracker;
+    private final InterviewRoomTracker roomTracker;
 
 
     @EventListener

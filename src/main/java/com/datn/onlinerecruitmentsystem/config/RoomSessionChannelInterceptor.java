@@ -1,5 +1,6 @@
 package com.datn.onlinerecruitmentsystem.config;
 
+import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -11,7 +12,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 public class RoomSessionChannelInterceptor implements ChannelInterceptor {
 
     @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+    public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.wrap(message);
 
         StompCommand command = (StompCommand) accessor.getHeader("stompCommand");

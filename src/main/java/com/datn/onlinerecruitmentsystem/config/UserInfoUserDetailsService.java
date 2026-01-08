@@ -2,21 +2,21 @@ package com.datn.onlinerecruitmentsystem.config;
 
 import com.datn.onlinerecruitmentsystem.entity.User;
 import com.datn.onlinerecruitmentsystem.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Collections;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class UserInfoUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
