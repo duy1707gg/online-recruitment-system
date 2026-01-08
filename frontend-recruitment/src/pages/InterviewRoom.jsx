@@ -377,7 +377,7 @@ const InterviewRoom = () => {
                 // 1. Fetch ICE Servers
                 let iceServers = [];
                 try {
-                    const response = await fetch("https://phongvan.metered.live/api/v1/turn/credentials?apiKey=782540d33239352ad8db1afce49c3ad20c9b");
+                    const response = await fetch(import.meta.env.VITE_TURN_SERVER_URL);
                     iceServers = await response.json();
                     console.log("Fetched ICE Servers:", iceServers);
                 } catch (error) {
